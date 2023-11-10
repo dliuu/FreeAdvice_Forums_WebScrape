@@ -36,7 +36,7 @@ def directory_to_cleaned_list(dir:str):
 
     all_urls = df['Unnamed: 1'].tolist()
     all_urls = all_urls[1:]
-    question_urls = file_lookup(all_urls, "https://www.justanswer.com/real-estate-law")
+    question_urls = file_lookup(all_urls, "https://forum.freeadvice.com/threads/")
   
   #Drop duplicate URLs in cleaned list
   unique_URLs = []
@@ -53,25 +53,23 @@ def scrape(url:str, filename: str):
   print('scraping ' + str(url))
   #Scrapes Data
   rows = []
-  header = ['Question', 'Answer(s)']
+  header = ['Data']
 
   response = requests.get(
-  url='https://proxy.scrapeops.io/v1/',
-  params={
+    url='https://proxy.scrapeops.io/v1/',
+    params={
       'api_key': 'd02ca450-7b42-4789-8528-ecf96ea1a150',
       'url': url, 
       'residential': 'true',
       'country': 'us', 
   },
 )
-
   soup = BeautifulSoup(response.content, 'html.parser')
-  data_conversation = soup.find_all('div', {'class': ["QNAThreadItemDescriptionCustomer", "QNAThreadItemDescriptionExpert"]})
-  data_question = soup.find_all('div', {'class': ['qnaBoxTitle', 'qnaBoxFirstChat']})
+  data = soup.find_all('div', {'class': 'bbWrapper'})
   
-  rows.append([data_question, data_conversation])
+  rows.append([data])
 
-  #Wrtie to .csv
+  #Write to .csv
   file_exists = os.path.isfile(filename)
 
   with open(filename, 'a', newline='') as csv_file:
@@ -84,10 +82,8 @@ def scrape(url:str, filename: str):
 
 
 #__Main__
-all_urls = directory_to_cleaned_list("justAnswer_rawURLs")
+url = "https://forum.freeadvice.com/threads/question-about-1031-tax-exchange.662985/"
+
+all_urls = directory_to_cleaned_list("raw_URLs")
 for url in all_urls:
-  scrape(url, 'scraped_justanswer.csv')
-
-
-
-
+  scrape(url, 'scraped_freeAdvice.csv')
